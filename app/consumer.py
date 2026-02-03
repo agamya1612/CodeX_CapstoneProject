@@ -1,14 +1,17 @@
+import os
 from kafka import KafkaConsumer, KafkaProducer
-from executor import execute_code
+from app.executor import execute_code
 import json
 import time
+
+BOOTSTRAP = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "coderank-kafka:9092")
 
 def get_consumer():
     while True:
         try:
             return KafkaConsumer(
                 "code.submissions",
-                bootstrap_servers="kafka:9092",
+                bootstrap_servers= BOOTSTRAP,
                 value_deserializer=lambda v: json.loads(v.decode()),
                 group_id="workers",
                 auto_offset_reset="earliest"
@@ -21,7 +24,7 @@ def get_producer():
     while True:
         try:
             return KafkaProducer(
-                bootstrap_servers="kafka:9092",
+                bootstrap_servers= BOOTSTRAP,
                 value_serializer=lambda v: json.dumps(v).encode()
             )
         except Exception:
